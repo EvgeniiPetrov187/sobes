@@ -6,6 +6,9 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class StudentDaoImpl implements StudentDao{
 
@@ -13,22 +16,13 @@ public class StudentDaoImpl implements StudentDao{
 
     private Transaction transaction;
 
-    public Session openSession() {
-        session = Config.getSessionFactory().openSession();
-        return session;
-    }
-
     public Session openSessionWithTransaction() {
         session = Config.getSessionFactory().openSession();
         transaction = session.beginTransaction();
         return session;
     }
 
-    public void closeSession() {
-        session.close();
-    }
-
-    public void closeSessionwithTransaction() {
+    public void closeSessionWithTransaction() {
         transaction.commit();
         session.close();
     }
@@ -51,21 +45,37 @@ public class StudentDaoImpl implements StudentDao{
 
     @Override
     public List findAll() {
-        return session.createQuery("select s from Student s").list();
+        return executeSessionFunction(session -> session.createQuery("select s from Student s").list());
     }
 
     @Override
-    public Student findById(Long id) {
-        return (Student) session.get(Student.class, id);
+    public Optional<Student> findById(Long id) {
+        return executeSessionFunction(session -> Optional.ofNullable((Student) session.get(Student.class, id)));
     }
 
     @Override
     public void saveOrUpdate(Student student) {
-        session.saveOrUpdate(student);
+        executeSessionConsumer(session1 -> session1.saveOrUpdate(student));
     }
 
     @Override
     public void delete(Student student) {
-        session.delete(student);
+        executeSessionConsumer(session -> session.delete(student));
+    }
+
+    private <T> T executeSessionFunction(Function<Session, T> function){
+        try {
+            return function.apply(openSessionWithTransaction());
+        } finally {
+            closeSessionWithTransaction();
+        }
+    }
+
+    private <T> void executeSessionConsumer(Consumer<Session> consumer){
+        try {
+            consumer.accept(openSessionWithTransaction());
+        } finally {
+            closeSessionWithTransaction();
+        }
     }
 }
