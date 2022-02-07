@@ -11,7 +11,6 @@ public class Main {
         Student student = new Student(6L, "Mike 3", 1);
         StudentDaoImpl studentDao = new StudentDaoImpl();
 
-        studentDao.openSessionWithTransaction();
         for (int i = 0; i < 1000; i++) {
             Student st = new Student(null, "Mike " + i, randomMark);
             studentDao.saveOrUpdate(st);
@@ -19,8 +18,7 @@ public class Main {
 
         studentDao.saveOrUpdate(student);
         studentDao.delete(student);
-        System.out.println(studentDao.findById(6L).toString());
+        System.out.println(studentDao.findById(8L).toString());
         System.out.println(studentDao.findAll().toString());
-        studentDao.closeSessionwithTransaction();
     }
 }
