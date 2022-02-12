@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>University</title>
+</head>
+<body>
+<div align="center">
+    <div>
+        <a th:href="@{/student/new}">New Student</a>
+    </div>
+    <form th:method="get">
+        <div>
+            <label for="nameFilter">Name filter</label>
+            <input type="text" id="nameFilter" name="nameFilter"
+                   placeholder="Name"/>
+            <button type="submit">Find</button>
+        </div>
+
+    </form>
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Age</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student : ${students}">
+                <th scope="row" th:text="${student.id}">1</th>
+                <td th:text="${student.name}">Mike</td>
+                <td th:text="${student.age}">18</td>
+                <td>
+                    <button><i><a th:href="@{/student/{id}(id = ${student.id})}">Edit</a></i></button>
+                    <form th:method="delete" th:action="@{/student/{id}(id = ${student.id})}">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
